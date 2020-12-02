@@ -1,0 +1,61 @@
+   0x08048e46 <+0>:     push   %ebx						//setup
+   0x08048e47 <+1>:     sub    $0x18,%esp
+
+   0x08048e4a <+4>:     mov    0x20(%esp),%ebx					//ebx seems to store the input string after looking at registers in gdb
+   0x08048e4e <+8>:     mov    %ebx,(%esp)
+
+   0x08048e51 <+11>:    call   0x804908b <string_length>			//calls string length on input
+   0x08048e56 <+16>:    cmp    $0x6,%eax					//compares 6 to string length. INPUT HAS 6 LETTERS
+   0x08048e59 <+19>:    je     0x8048e60 <phase_7+26>				//jumps if input has 6 characters
+   0x08048e5b <+21>:    call   0x8049343 <explode_bomb>				//explodes otherwise
+
+   0x08048e60 <+26>:    mov    $0x0,%edx					//puts 0 into edx
+   0x08048e65 <+31>:    mov    $0x0,%eax					//puts 0 into eax
+				
+										//Next 4 lines are the contents of the loop WHICH ITERATES 6 TIMES
+   0x08048e6a <+36>:    movzbl (%ebx,%eax,1),%ecx				//ecx contains the eax'th character of the string
+   0x08048e6e <+40>:    and    $0xf,%ecx					//beats me. Can we pretend it doesn't exist?
+   0x08048e71 <+43>:    add    0x804a3a0(,%ecx,4),%edx				//adds the value at array[ecx*4] to edx
+   0x08048e78 <+50>:    add    $0x1,%eax					//adds 1 to eax
+
+   0x08048e7b <+53>:    cmp    $0x6,%eax					//compares 6 to eax
+   0x08048e7e <+56>:    jne    0x8048e6a <phase_7+36>				//if eax is not 6 then jump to line 36 (loop iterates 6 times)
+
+   0x08048e80 <+58>:    cmp    $0x32,%edx					//compares 0x32 to edx. Trying to get edx to equal 50 after 6 additions
+   0x08048e83 <+61>:    je     0x8048e8a <phase_7+68>				//checks if 0x32 is equal to edx and if they are avoid boom
+   0x08048e85 <+63>:    call   0x8049343 <explode_bomb>				//basically want edx to be 0x32 after the 6 loop iterations
+
+   0x08048e8a <+68>:    add    $0x18,%esp					//conclusion
+   0x08048e8d <+71>:    pop    %ebx
+   0x08048e8e <+72>:    ret
+
+array:				//addresses go up by 4 because that is how big an int is
+0x804a3a0: a[0]: 0x02	= 2
+0x804a3a4: a[1]: 0x0a	= 10
+0x804a3ac: a[2]: 0x01	= 1
+0x804a3b0: a[3]: 0x0c	= 12
+0x804a3b4: a[4]: 0x10	= 16
+0x804a3b8: a[5]: 0x09	= 9
+0x804a3bc: a[6]: 0x03	= 3
+0x804a3c0: a[7]: 0x04	= 4
+0x804a3c4: a[8]: 0x07	= 7
+0x804a3c8: a[9]: 0x0e	= 14
+0x804a3cc: a[10]: 0x05	= 5
+0x804a3d0: a[11]: 0x0b	= 11
+0x804a3d4: a[12]: 0x08	= 8
+0x804a3d8: a[13]: 0x0f	= 15
+0x804a3dc: a[14]: 0x0d	= 13
+
+a adds 10
+b adds 6 
+c adds 1
+d adds 12
+e added 9
+
+d adds 12, done 4 times gets you to 48, c adds 1 so added twice is 50.
+ddddcc has 6 characters and sums to the desired number!
+
+
+
+
+

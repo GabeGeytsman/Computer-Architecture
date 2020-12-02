@@ -1,0 +1,33 @@
+   0x08048d26 <+0>:     sub    $0x2c,%esp				//subtracts value 0x2c from stack; will be added back on at the end
+
+   0x08048d29 <+3>:     lea    0x1c(%esp),%eax				//moves 12+16 = 28 + esp into eax
+   0x08048d2d <+7>:     mov    %eax,0x8(%esp)				//moves eax to the address at esp
+   0x08048d31 <+11>:    movl   $0x804a5c4,0x4(%esp)			//moves literal 0x804a5c4 to stack pointer + 4 so next val on stack. 	//THIS IS LOCATION of "%d" confirming that we are reading anu
+   0x08048d39 <+19>:    mov    0x30(%esp),%eax				//moves 16*3 = 48 + esp into eax
+   0x08048d3d <+23>:    mov    %eax,(%esp)				//moves this value to the address stores at esp
+
+   0x08048d40 <+26>:    call   0x8048870 <__isoc99_sscanf@plt>		//scans string
+   0x08048d45 <+31>:    cmp    $0x1,%eax				//compares result to 1. This checks if the scanf worked
+   0x08048d48 <+34>:    je     0x8048d4f <phase_5+41>			//if scanf failed jump to explode bomb
+   0x08048d4a <+36>:    call   0x8049343 <explode_bomb>			//jump to explode bomb
+
+   0x08048d4f <+41>:    mov    0x1c(%esp),%ecx				//moves 12+16 = 28 + esp into ecx. WHY?
+   0x08048d53 <+45>:    cmp    $0x2,%ecx				//compares ecx to 2
+   0x08048d56 <+48>:    jle    0x8048d74 <phase_5+78>			//jumps to explode bomb if ecx is less than 2		//
+
+   0x08048d58 <+50>:    mov    $0x1,%edx				//stores value 1 in edx
+   0x08048d5d <+55>:    mov    $0x2,%eax				//stores value 2 in aex
+
+									//loop until ecx and eax are equal			//WE WANT THIS TO LOOP 6 times
+   0x08048d62 <+60>:    imul   %eax,%edx				//multiplies eax * edx into edx				//THAT WAY we get to 40320 in edx
+   0x08048d65 <+63>:    add    $0x1,%eax				//adds 1 to eax
+   0x08048d68 <+66>:    cmp    %ecx,%eax				//compares ecx to eax
+   0x08048d6a <+68>:    jne    0x8048d62 <phase_5+60>			//loops until they are equal
+
+   0x08048d6c <+70>:    cmp    $0x9d80,%edx				//If the literal 0x9d80 is equal to the value in edx, avoid boom. 0x9d80 = 40320
+   0x08048d72 <+76>:    je     0x8048d79 <phase_5+83>			//jumps to avoid boom based on comp	
+   0x08048d74 <+78>:    call   0x8049343 <explode_bomb>			//BOOM
+   0x08048d79 <+83>:    add    $0x2c,%esp				//adds value 0x2c to stack; was subtracted at the beginning
+   0x08048d7c <+86>:    ret						//return
+
+Answer is 9, input is stored in ecx but with 7 iterations edx was only at 720 so we went higher and boom it hit 40320

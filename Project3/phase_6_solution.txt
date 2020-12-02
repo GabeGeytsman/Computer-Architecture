@@ -1,0 +1,88 @@
+   0x08048dde <+0>:     sub    $0x2c,%esp
+   0x08048de1 <+3>:     lea    0x18(%esp),%eax
+   0x08048de5 <+7>:     mov    %eax,0xc(%esp)					//Probably some stack bullshit
+   0x08048de9 <+11>:    lea    0x1c(%esp),%eax
+   0x08048ded <+15>:    mov    %eax,0x8(%esp)
+
+   0x08048df1 <+19>:    movl   $0x804a5c1,0x4(%esp)				//this address contains "%d %d" 
+
+   0x08048df9 <+27>:    mov    0x30(%esp),%eax
+   0x08048dfd <+31>:    mov    %eax,(%esp)
+
+   0x08048e00 <+34>:    call   0x8048870 <__isoc99_sscanf@plt>
+   0x08048e05 <+39>:    cmp    $0x2,%eax					//checks that 2 inputs were successfully read
+   0x08048e08 <+42>:    jne    0x8048e11 <phase_6+51>
+
+   0x08048e0a <+44>:    cmpl   $0xe,0x1c(%esp)					//YOUR FIRST INPUT MUST BE BELOW 14! for some reason, input is at 0x1c+stack pointer
+   0x08048e0f <+49>:    jbe    0x8048e16 <phase_6+56>				//checks the 0 flag and the carry flag? if value is 0 or too large then boom
+   0x08048e11 <+51>:    call   0x8049343 <explode_bomb>
+
+   0x08048e16 <+56>:    movl   $0xe,0x8(%esp)					//15 on stack
+   0x08048e1e <+64>:    movl   $0x0,0x4(%esp)					//0 on stack
+   0x08048e26 <+72>:    mov    0x1c(%esp),%eax					//eax ends up with your first input
+   0x08048e2a <+76>:    mov    %eax,(%esp)					//puts first input on stack
+
+   0x08048e2d <+79>:    call   0x8048d7d <func6>				//oh boy. Calls func6
+
+   0x08048e32 <+84>:    test   %eax,%eax
+   0x08048e34 <+86>:    jne    0x8048e3d <phase_6+95>				//boom if zero flag is not 1 so eax should end up being 0
+
+   0x08048e36 <+88>:    cmpl   $0x0,0x18(%esp)					//compares 0 to something on stack. Perhaps checking if func6 returned 0?
+   0x08048e3b <+93>:    je     0x8048e42 <phase_6+100>				//if 0 then you are good
+
+   0x08048e3d <+95>:    call   0x8049343 <explode_bomb>
+
+   0x08048e42 <+100>:   add    $0x2c,%esp					//end of function bullshit
+   0x08048e45 <+103>:   ret
+
+**********************************************************
+func6
+
+   0x08048d7d <+0>:     push   %esi
+   0x08048d7e <+1>:     push   %ebx
+   0x08048d7f <+2>:     sub    $0x14,%esp
+   0x08048d82 <+5>:     mov    0x20(%esp),%edx
+   0x08048d86 <+9>:     mov    0x24(%esp),%eax
+   0x08048d8a <+13>:    mov    0x28(%esp),%ebx
+   0x08048d8e <+17>:    mov    %ebx,%ecx
+   0x08048d90 <+19>:    sub    %eax,%ecx
+   0x08048d92 <+21>:    mov    %ecx,%esi
+   0x08048d94 <+23>:    shr    $0x1f,%esi					//shift right 16+15 times so 31 times???
+   0x08048d97 <+26>:    add    %esi,%ecx					//adds esi to ecx
+   0x08048d99 <+28>:    sar    %ecx						//shift right but different?
+   0x08048d9b <+30>:    add    %eax,%ecx					//adds eax to ecx
+
+   0x08048d9d <+32>:    cmp    %edx,%ecx					//if ecx < edx skip to the part where we compare them on line 66.
+   0x08048d9f <+34>:    jle    0x8048db8 <func6+59>				
+
+   0x08048da1 <+36>:    sub    $0x1,%ecx					//subtracts 1 from ecx
+
+   0x08048da4 <+39>:    mov    %ecx,0x8(%esp)					//puts ecx, eax, and edx on stack
+   0x08048da8 <+43>:    mov    %eax,0x4(%esp)
+   0x08048dac <+47>:    mov    %edx,(%esp)
+   0x08048daf <+50>:    call   0x8048d7d <func6>				//another recursive call after subtracting 1 from ecx
+
+   0x08048db4 <+55>:    add    %eax,%eax					//after that call is performed, add eax to eax, and jump to the end
+   0x08048db6 <+57>:    jmp    0x8048dd8 <func6+91>
+
+   0x08048db8 <+59>:    mov    $0x0,%eax					//moves 0 into eax
+   0x08048dbd <+64>:    cmp    %edx,%ecx					//checks if ecx > edx. If so, jump and avoid recursion
+   0x08048dbf <+66>:    jge    0x8048dd8 <func6+91>
+
+   0x08048dc1 <+68>:    mov    %ebx,0x8(%esp)					//if not, put ebx on stack
+   0x08048dc5 <+72>:    add    $0x1,%ecx					//add 1 to ecx
+   0x08048dc8 <+75>:    mov    %ecx,0x4(%esp)					//put ecx on stack
+   0x08048dcc <+79>:    mov    %edx,(%esp)					//put edx on stack
+   0x08048dcf <+82>:    call   0x8048d7d <func6>				//recursion
+
+   0x08048dd4 <+87>:    lea    0x1(%eax,%eax,1),%eax				//put 1 + 2*eax into eax
+   0x08048dd8 <+91>:    add    $0x14,%esp
+   0x08048ddb <+94>:    pop    %ebx
+   0x08048ddc <+95>:    pop    %esi
+   0x08048ddd <+96>:    ret
+
+In the end, it turned out that when the first input was 1 eax ended up being 0 after func6 which satisfied the test eax eax.
+Then, it turned out that we were comparing 0 to the second input, so the second value was 0.
+Trial and error showed that 1 got the desired value of 0 into eax.
+
+
